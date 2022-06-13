@@ -3,26 +3,55 @@ import { ChevronRightIcon } from "@modulz/radix-icons";
 import { Checkbox, Text, Box } from "@mantine/core";
 import HierarchyContext from "../api/HierarchyContext";
 
-const HierarchyItem = ({ id, text, check = false, indentation = 0 }) => {
+const HierarchyItem = ({ id, check = false, indentation = 0 }) => {
+  const { data, dispatchHierarchies } = useContext(HierarchyContext);
+
   const [isSelect, setIsSelect] = useState(check);
-  const [children, setchildren] = useState();
+  //const [children, setchildren] = useState();
+
+  const { text, childrenFetched } = data.hierarchies.filter((_) => _.id === id)[0]
+
+
+  const children = data.hierarchies.filter((_) => _.parentid === id)
+
   console.log(children);
-  const hasChildren = children && children.length;
+  const hasChildren = !childrenFetched && children.length;
   const showIcon = children === undefined || hasChildren;
 
-  const { data, dispatchHierarchies } = useContext(HierarchyContext);
   const makeActive = () => {
     setIsSelect((state) => !state);
+    dispatchHierarchies({
+      type: "TOGGLE_SELECTION",
+      tree_name: "hierarchies",
+      id,
+    });
     getChildren();
   };
 
   const getChildren = () => {
     setTimeout(() => {
-      setchildren(data.hierarchies.filter((_) => _.parentid === id));
+      dispatchHierarchies({
+        type: "ADD_NODES",
+        tree_name: "hierarchies",
+        nodes: [
+          {
+            id: Math.round(1000 * Math.random()),
+            text: "category" + Math.round(1000 * Math.random()),
+            parentid: id,
+          },
+          {
+            id: Math.round(1000 * Math.random()),
+            text: "category" + Math.round(1000 * Math.random()),
+            parentid: id,
+          },
+        ],
+      });
+      //setchildren(data.hierarchies.filter((_) => _.parentid === id));
+      
     }, 1000);
   };
 
-  console.log("232", data.hierarchies);
+  console.log("232", data);
 
   return (
     <div>
