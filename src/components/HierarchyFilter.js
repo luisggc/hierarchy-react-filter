@@ -14,9 +14,10 @@ import { hierarchies } from "../api/data_example";
 export default function HierarchyFilter({
   titleName = "Select Hierarchy",
   subTitleName = "Select the MOST ACCURATE location to identify where the event occurred",
+  onlySelection = true,
 }) {
   const [opened, setOpened] = useState(true);
-  const [data, dispatchHierarchies] = useReducer(hierReducer, { hierarchies });
+  const [data, dispatchHierarchies] = useReducer(hierReducer, { hierarchies, onlySelection });
   const rightSection = (
     <Tooltip label="We do not send spam" position="top" placement="end">
       <InfoCircledIcon />

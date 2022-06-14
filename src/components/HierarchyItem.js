@@ -1,63 +1,78 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef } from "react";
 import { ChevronRightIcon } from "@modulz/radix-icons";
 import { Checkbox, Text, Box } from "@mantine/core";
 import HierarchyContext from "../api/HierarchyContext";
 
 const HierarchyItem = ({ id, check = false, indentation = 0 }) => {
   const { data, dispatchHierarchies } = useContext(HierarchyContext);
+  const checkRef = useRef();
+  // HierarchyItem properties
+  const { text, childrenFetched, isSelected, isOpened } = data.hierarchies.filter(
+    (_) => _.id === id
+  )[0];
 
-  const [isSelect, setIsSelect] = useState(check);
-  //const [children, setchildren] = useState();
+  if (id === 1) {
+    //console.log(data);
+  }
 
-  const { text, childrenFetched } = data.hierarchies.filter((_) => _.id === id)[0]
-
-
-  const children = data.hierarchies.filter((_) => _.parentid === id)
-
-  console.log(children);
+  const children = data.hierarchies.filter((_) => _.parentid === id);
   const hasChildren = !childrenFetched && children.length;
-  const showIcon = children === undefined || hasChildren;
+  const showIcon = isOpened === undefined || children === undefined || hasChildren;
 
-  const makeActive = () => {
-    setIsSelect((state) => !state);
-    dispatchHierarchies({
-      type: "TOGGLE_SELECTION",
-      tree_name: "hierarchies",
-      id,
-    });
-    getChildren();
+  // Clicked on the whole hierarchy item
+  const makeActive = async (e) => {
+    console.log("Clicked on the whole hierarchy item");
+
+    e.preventDefault();
+
+    // Clicked only on the Checkbox
+    if (e.target && e.target.contains(checkRef.current)) {
+      console.log("Clicked only on the Checkbox")
+      dispatchHierarchies({
+        type: "TOGGLE_SELECTION",
+        tree_name: "hierarchies",
+        id,
+      });
+    } else {
+      dispatchHierarchies({
+        type: "TOGGLE_OPEN",
+        tree_name: "hierarchies",
+        id,
+      });
+    }
+    await getChildren();
   };
 
-  const getChildren = () => {
-    setTimeout(() => {
+  const onCheckClick = () => {
+    console.log("onCheckClick");
+  };
+
+  const getChildren = async () => {
+    return await setTimeout(() => {
       dispatchHierarchies({
         type: "ADD_NODES",
         tree_name: "hierarchies",
         nodes: [
           {
-            id: Math.round(1000 * Math.random()),
-            text: "category" + Math.round(1000 * Math.random()),
+            id: Math.round(10000 * Math.random()),
+            text: "category" + Math.round(100000 * Math.random()),
             parentid: id,
           },
           {
-            id: Math.round(1000 * Math.random()),
-            text: "category" + Math.round(1000 * Math.random()),
+            id: Math.round(10000 * Math.random()),
+            text: "category" + Math.round(10000 * Math.random()),
             parentid: id,
           },
         ],
       });
-      //setchildren(data.hierarchies.filter((_) => _.parentid === id));
-      
     }, 1000);
   };
-
-  console.log("232", data);
 
   return (
     <div>
       <div style={{ ...styles.hierarchyItem, marginLeft: indentation * 20 }} onClick={makeActive}>
         <Box mr={5}>
-          <ChevronRightIcon style={styles.iconChevron(showIcon, isSelect)} />
+          <ChevronRightIcon style={styles.iconChevron(showIcon, isOpened)} />
         </Box>
         <Box sx={styles.hierarchyItemBox}>
           <div
@@ -66,7 +81,7 @@ const HierarchyItem = ({ id, check = false, indentation = 0 }) => {
               alignItems: "center",
             }}
           >
-            <Checkbox checked={isSelect} readOnly />
+            <Checkbox ref={checkRef} checked={isSelected} onChange={() => {}}  readOnly />
             <Text ml={5}>{text}</Text>
           </div>
           <Text weight={300} mr={3}>
@@ -75,7 +90,7 @@ const HierarchyItem = ({ id, check = false, indentation = 0 }) => {
         </Box>
       </div>
 
-      {hasChildren && isSelect
+      {hasChildren && isOpened
         ? children.map((child) => (
             <HierarchyItem key={child.id} {...child} indentation={indentation + 1} />
           ))
@@ -104,8 +119,8 @@ const styles = {
       backgroundColor: theme.colors.gray[0],
     },
   }),
-  iconChevron: (hasChildren, isSelect) => ({
-    transform: isSelect ? "rotate(90deg)" : "",
+  iconChevron: (hasChildren, isSelected) => ({
+    transform: isSelected ? "rotate(90deg)" : "",
     visibility: hasChildren ? "visible" : "hidden",
     transitionDuration: "0.5s",
   }),
