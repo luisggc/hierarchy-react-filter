@@ -21,13 +21,8 @@ const HierarchyItem = ({ id, check = false, indentation = 0 }) => {
 
   // Clicked on the whole hierarchy item
   const makeActive = async (e) => {
-    console.log("Clicked on the whole hierarchy item");
-
-    e.preventDefault();
-
     // Clicked only on the Checkbox
-    if (e.target && e.target.contains(checkRef.current)) {
-      console.log("Clicked only on the Checkbox")
+    if (e.target === checkRef.current) {
       dispatchHierarchies({
         type: "TOGGLE_SELECTION",
         tree_name: "hierarchies",
@@ -41,10 +36,6 @@ const HierarchyItem = ({ id, check = false, indentation = 0 }) => {
       });
     }
     await getChildren();
-  };
-
-  const onCheckClick = () => {
-    console.log("onCheckClick");
   };
 
   const getChildren = async () => {
@@ -81,7 +72,7 @@ const HierarchyItem = ({ id, check = false, indentation = 0 }) => {
               alignItems: "center",
             }}
           >
-            <Checkbox ref={checkRef} checked={isSelected} onChange={() => {}}  readOnly />
+            <Checkbox ref={checkRef} checked={isSelected ?? false} readOnly />
             <Text ml={5}>{text}</Text>
           </div>
           <Text weight={300} mr={3}>
