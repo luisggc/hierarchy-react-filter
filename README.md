@@ -1,12 +1,17 @@
 # Hierarchy Filter Search 🔍
 
 This is a React component for filtering server-side application data that follows a hierarchy pattern. Lazy load is also implemented to enhance performance.
+**Still in development**
 
 ## Installation
 
 `npm i xxxxx`
 
 `yarn add xxxxx`
+
+## 📌 Screenshots
+
+![Hierarchy Filter](hierarchy-filter.gif)
 
 ## Usage
 
