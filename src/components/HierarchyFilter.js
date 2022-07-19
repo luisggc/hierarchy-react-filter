@@ -1,22 +1,18 @@
 import React, { useReducer, useState } from "react";
-import { Modal, Button, Group, Text, Tabs, Input, Tooltip, Box } from "@mantine/core";
-import {
-  InfoCircledIcon,
-  MagnifyingGlassIcon,
-  ListBulletIcon,
-  GlobeIcon,
-  StarIcon,
-} from "@modulz/radix-icons";
+import { Modal, Text, Tabs, Input, Tooltip, Box } from "@mantine/core";
+import { InfoCircledIcon, MagnifyingGlassIcon } from "@modulz/radix-icons";
 import HierachyTree from "./HierachyTree";
 import HierarchyContext, { hierReducer } from "../api/HierarchyContext";
 import { hierarchies } from "../api/data_example";
 
 export default function HierarchyFilter({
-  titleName = "Select Hierarchy",
-  subTitleName = "Select the MOST ACCURATE location to identify where the event occurred",
+  tabs,
+  titleName,
+  subTitleName,
+  opened,
+  onClose,
   onlySelection = true,
 }) {
-  const [opened, setOpened] = useState(true);
   const [data, dispatchHierarchies] = useReducer(hierReducer, { hierarchies, onlySelection });
   const rightSection = (
     <Tooltip label="We do not send spam" position="top" placement="end">
@@ -24,13 +20,13 @@ export default function HierarchyFilter({
     </Tooltip>
   );
 
-  const initial_hierarchies = data.hierarchies.filter((_) => _.parentid === 0);
+  //const initial_hierarchies = data.hierarchies.filter((_) => _.parentid === 0);
 
   return (
     <HierarchyContext.Provider value={{ data, dispatchHierarchies }}>
       <Modal
         opened={opened}
-        onClose={() => setOpened(false)}
+        onClose={onClose}
         title={titleName}
         styles={{ modal: { width: "900px" } }}
       >
@@ -48,22 +44,17 @@ export default function HierarchyFilter({
             />
           </Box>
           <Tabs mt={20}>
-            <Tabs.Tab label="Hierarchy" icon={<ListBulletIcon />}>
-              <HierachyTree data={initial_hierarchies} />
-            </Tabs.Tab>
-            <Tabs.Tab label="Location" icon={<GlobeIcon />}>
-              Messages tab content
-            </Tabs.Tab>
-            <Tabs.Tab label="Favorites" icon={<StarIcon />}>
-              Settings tab content
-            </Tabs.Tab>
+            {tabs.map((tab, index) => {
+              const { label, icon, initialData } = tab;
+              return (
+                <Tabs.Tab key={index} label={label} icon={icon}>
+                  {initialData ? <HierachyTree data={initialData} /> : "No data"}
+                </Tabs.Tab>
+              );
+            })}
           </Tabs>
         </div>
       </Modal>
-
-      <Group position="center">
-        <Button onClick={() => setOpened(true)}>Open Modal</Button>
-      </Group>
     </HierarchyContext.Provider>
   );
 }
